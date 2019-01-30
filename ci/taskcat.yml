@@ -12,7 +12,7 @@ global:
   - us-west-2
   reporting: true
 tests:
-  master:
+  drupal-master:
     parameter_input: drupal-master.json
     regions:
     - ap-southeast-2
