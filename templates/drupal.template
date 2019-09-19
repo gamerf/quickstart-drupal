@@ -523,7 +523,7 @@
                 "false"
             ],
             "Default": "true",
-            "Description": "Enable CloudFront Content Delivery Network",
+            "Description": "Enable ElastiCache",
             "Type": "String"
         },
         "ElastiCacheAutoMinorVersionUpgrade":{
