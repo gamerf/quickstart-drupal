@@ -73,7 +73,7 @@
     },
     {
         "ParameterKey": "DrupalVersion",
-        "ParameterValue": "8"
+        "ParameterValue": "7"
     },
     {
         "ParameterKey": "KeyPair",
