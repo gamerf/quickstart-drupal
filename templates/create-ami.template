@@ -123,7 +123,7 @@
             "Properties": {
                 "Description": "Create an AMI from  EC2 Instance and return AMI-ID.",
                 "Handler": "index.lambda_handler",
-                "Runtime": "python2.7",
+                "Runtime": "python3.7",
                 "Timeout": "300",
                 "Role": {
                     "Fn::GetAtt": [
@@ -185,7 +185,7 @@
             "Type": "AWS::Lambda::Function",
             "Properties": {
                 "Handler": "index.lambda_handler",
-                "Runtime": "python2.7",
+                "Runtime": "python3.7",
                 "Timeout": "300",
                 "Role": {
                     "Fn::GetAtt": [
