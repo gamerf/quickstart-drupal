@@ -870,10 +870,14 @@ Resources:
                   - "for node in \\\n"
                   - "`aws elasticache describe-cache-clusters --show-cache-node-info\
                     \ \\\n"
-                  - "--cache-cluster-id dru-el-1gj1lln1l2egc \\\n"
+                  - '--cache-cluster-id '
+                  - !Ref 'ElastiCacheClusterId'
+                  - " \\\n"
                   - "--query 'CacheClusters[0].CacheNodes[*].Endpoint.[Address, Port]'\
                     \ \\\n"
-                  - "--output=text --region='us-east-1'\\\n"
+                  - --output=text --region='
+                  - !Ref 'AWS::Region'
+                  - "'\\\n"
                   - "| sed -E -e 's/[[:space:]]+/:/g'`\n"
                   - "do\n"
                   - "printf \"    '\"$node\"' => 'default',\\n\"\n"
