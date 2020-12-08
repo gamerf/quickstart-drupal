@@ -726,7 +726,7 @@ Resources:
             '04_00_download_drupal':
               command: !Join
                 - ''
-                - - /root/.composer/vendor/bin/drush dl -y drupal-
+                - - /root/.config/composer/vendor/drush/drush/drush dl -y drupal-
                   - !Ref 'DrupalVersion'
                   - ' --drupal-project-rename drupal'
               cwd: /root
@@ -745,7 +745,7 @@ Resources:
             '07_install_drupal':
               command: !Join
                 - ''
-                - - /root/.composer/vendor/bin/drush site-install standard --yes
+                - - /root/.config/composer/vendor/drush/drush/drush site-install standard --yes
                   - ' --site-name='''
                   - !Ref 'DrupalSiteName'
                   - ''' --site-mail='
@@ -833,7 +833,7 @@ Resources:
           commands:
             '01_download_memcahe_module':
               cwd: /var/www/drupal
-              command: /root/.composer/vendor/bin/drush dl memcache
+              command: /root/.config/composer/vendor/drush/drush/drush dl memcache
               env:
                 HOME: /root
                 DRUSH_PHP: /usr/bin/php
@@ -842,13 +842,13 @@ Resources:
               command: /tmp/drupalCacheConfig.sh >> settings.php
             '03_enable_memcache_modules':
               cwd: /var/www/drupal
-              command: /root/.composer/vendor/bin/drush en -y memcache memcache_admin
+              command: /root/.config/composer/vendor/drush/drush/drush en -y memcache memcache_admin
               env:
                 HOME: /root
                 DRUSH_PHP: /usr/bin/php
             '04_clear_cache':
               cwd: /var/www/drupal
-              command: /root/.composer/vendor/bin/drush cc drush
+              command: /root/.config/composer/vendor/drush/drush/drush cc drush
               env:
                 HOME: /root
                 DRUSH_PHP: /usr/bin/php
@@ -889,7 +889,7 @@ Resources:
           commands:
             '01_enable_memcahe':
               cwd: /var/www/drupal
-              command: /root/.composer/vendor/bin/drush en -y memcache memcache_storage
+              command: /root/.config/composer/vendor/drush/drush/drush en -y memcache memcache_storage
               env:
                 HOME: /root
                 DRUSH_PHP: /usr/bin/php
@@ -900,7 +900,7 @@ Resources:
           commands:
             '01_download_cdn_module':
               cwd: /var/www/drupal
-              command: /root/.composer/vendor/bin/drush dl cdn
+              command: /root/.config/composer/vendor/drush/drush/drush dl cdn
               env:
                 HOME: /root
                 DRUSH_PHP: /usr/bin/php
@@ -922,17 +922,19 @@ Resources:
                       - !GetAtt 'CloudFrontStack.Outputs.CdnUrl'
                     - "\n  conditions: []\n\" > cdn.settings.yml"
                 - ''
-            '02_enable_cdn_module':
-              cwd: /var/www/drupal
-              command: /root/.composer/vendor/bin/drush en -y cdn cdn_ui
-              env:
-                HOME: /root
-                DRUSH_PHP: /usr/bin/php
+            # Disabling 02_enable_cdn_module command. Drush is throwing a segmentation fault. See https://github.com/aws-quickstart/quickstart-drupal/issues/19#issuecomment-725477739
+            # CDN module needs to be configured manually
+#            '02_enable_cdn_module':
+#              cwd: /var/www/drupal
+#              command: /root/.config/composer/vendor/drush/drush/drush en -y cdn cdn_ui
+#              env:
+#                HOME: /root
+#                DRUSH_PHP: /usr/bin/php
         install-cdn-module-7:
           commands:
             '01_enable_cdn_module':
               cwd: /var/www/drupal
-              command: /root/.composer/vendor/bin/drush en -y cdn
+              command: /root/.config/composer/vendor/drush/drush/drush en -y cdn
               env:
                 HOME: /root
                 DRUSH_PHP: /usr/bin/php
@@ -942,13 +944,13 @@ Resources:
                 - DrupalCdnModuleCondition
                 - !Join
                   - ''
-                  - - /root/.composer/vendor/bin/drush vset preprocess_js TRUE
+                  - - /root/.config/composer/vendor/drush/drush/drush vset preprocess_js TRUE
                     - ' && '
-                    - /root/.composer/vendor/bin/drush vset preprocess_css TRUE
+                    - /root/.config/composer/vendor/drush/drush/drush vset preprocess_css TRUE
                     - ' && '
-                    - /root/.composer/vendor/bin/drush vset cdn_status '2'
+                    - /root/.config/composer/vendor/drush/drush/drush vset cdn_status '2'
                     - ' && '
-                    - /root/.composer/vendor/bin/drush vset cdn_basic_mapping "http://
+                    - /root/.config/composer/vendor/drush/drush/drush vset cdn_basic_mapping "http://
                     - !If
                       - CloudFrontAliasRoute53Condition
                       - !Ref 'CloudFrontAlias'
@@ -959,7 +961,7 @@ Resources:
                       - !Join
                         - ''
                         - - ' && '
-                          - /root/.composer/vendor/bin/drush vset cdn_https_support
+                          - /root/.config/composer/vendor/drush/drush/drush vset cdn_https_support
                             TRUE
                       - ''
                 - ''
