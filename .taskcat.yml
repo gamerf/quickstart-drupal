@@ -10,53 +10,72 @@ project:
   - us-east-2
   - us-west-2
   s3_bucket: ''
+  shorten_stack_name: true
+  parameters:
+    AvailabilityZones: $[taskcat_getaz_2]
+    BastionAMIOS: Amazon-Linux2-HVM
+    BastionInstanceType: t2.micro
+    CloudFrontAlias: cdn.default
+    CloudFrontPriceClass: use-all-edge-locations
+    DBAutoMinorVersionUpgrade: 'true'
+    DBBackupRetentionPeriod: '7'
+    DBInstanceClass: db.t2.small
+    DBMasterUsername: dbadmin
+    DBMultiAZ: 'true'
+    DrupalDbName: drupaldb
+    DrupalDbUsername: drupal
+    DrupalSiteAdminUsername: drupaladmin
+    DrupalSiteDomain: localhost.local
+    DrupalSiteName: Drupal Test Site
+    ElastiCacheAutoMinorVersionUpgrade: 'true'
+    ElastiCacheEnable: 'true'
+    ElastiCacheNodeType: cache.t2.micro
+    ElastiCacheNumberOfNodes: '2'
+    PhpVersion: php71
+    QSS3BucketName: $[taskcat_autobucket]
+    QSS3BucketRegion: $[taskcat_current_region]
+    RemoteAccessCIDR: 10.0.0.0/16
+    Route53HostedZoneId: ''
+    SSLCertificateId: ''
+    VPCCIDR: 10.0.0.0/16
+    WebServerDesiredCapacity: '2'
+    WebServerInstanceType: t2.micro
+    WebServerMaxSize: '3'
+    WebServerMinSize: '1'
 tests:
-  drupal-master:
+  drupal-v7-no-cdn:
     parameters:
-      AutoScalingNotificationEmail: foo@example.com
-      AvailabilityZones: $[taskcat_getaz_2]
-      BastionAMIOS: Amazon-Linux2-HVM
-      BastionInstanceType: t2.micro
-      CloudFrontAlias: cdn.default
-      CloudFrontEnable: 'true'
-      CloudFrontPriceClass: use-all-edge-locations
-      DBAutoMinorVersionUpgrade: 'true'
-      DBBackupRetentionPeriod: '7'
-      DBInstanceClass: db.t2.small
-      DBMasterUserPassword: $[alfred_genpass_10]
-      DBMasterUsername: dbadmin
-      DBMultiAZ: 'true'
-      DrupalDbName: drupaldb
-      DrupalDbPassword: $[alfred_genpass_10]
-      DrupalDbUsername: drupal
-      DrupalSiteAdminEmail: foo@example.com
-      DrupalSiteAdminPassword: $[alfred_genpass_10]
-      DrupalSiteAdminUsername: drupaladmin
-      DrupalSiteDomain: localhost.local
-      DrupalSiteName: Drupal Test Site
+      CloudFrontEnable: 'false'
       DrupalVersion: '7'
-      ElastiCacheAutoMinorVersionUpgrade: 'true'
-      ElastiCacheEnable: 'true'
-      ElastiCacheNodeType: cache.t2.micro
-      ElastiCacheNumberOfNodes: '2'
       KeyPair: $[alfred_getkeypair]
-      PhpVersion: php71
       QSS3BucketName: $[taskcat_autobucket]
       QSS3BucketRegion: $[taskcat_current_region]
-      RemoteAccessCIDR: 10.0.0.0/16
-      Route53HostedZoneId: ''
-      SSLCertificateId: ''
-      VPCCIDR: 10.0.0.0/16
-      WebServerDesiredCapacity: '2'
-      WebServerInstanceType: t2.micro
-      WebServerMaxSize: '3'
-      WebServerMinSize: '1'
     regions:
     - ap-southeast-2
     - eu-central-1
-    - eu-west-1
-    - us-east-1
-    - us-east-2
-    - us-west-2
+    s3_bucket: ''
+    template: templates/drupal-master.template.yaml
+  drupal-v7-cdn:
+    parameters:
+      CloudFrontEnable: 'true'
+      DrupalVersion: '7'
+      KeyPair: $[alfred_getkeypair]
+      QSS3BucketName: $[taskcat_autobucket]
+      QSS3BucketRegion: $[taskcat_current_region]
+    regions:
+      - eu-west-1
+      - us-east-1
+    s3_bucket: ''
+    template: templates/drupal-master.template.yaml
+  drupal-v8-no-cdn:
+    parameters:
+      CloudFrontEnable: 'false'
+      DrupalVersion: '8'
+      KeyPair: $[alfred_getkeypair]
+      QSS3BucketName: $[taskcat_autobucket]
+      QSS3BucketRegion: $[taskcat_current_region]
+    regions:
+      - us-east-2
+      - us-west-2
     s3_bucket: ''
     template: templates/drupal-master.template.yaml
