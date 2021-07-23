@@ -22,35 +22,23 @@ Parameters:
     Type: String
   DBInstanceClass:
     AllowedValues:
-      - db.t1.micro
-      - db.m1.small
-      - db.m3.medium
-      - db.m3.large
-      - db.m3.xlarge
-      - db.m3.2xlarge
-      - db.m4.2xlarge
-      - db.r3.large
-      - db.r3.xlarge
-      - db.r3.2xlarge
-      - db.r3.4xlarge
-      - db.r3.8xlarge
-      - db.t2.micro
-      - db.t2.small
-      - db.t2.medium
-      - db.m2.xlarge
-      - db.m2.2xlarge
-      - db.m2.4xlarge
-      - db.cr1.8xlarge
-      - db.m1.medium
-      - db.m1.large
-      - db.m1.xlarge
+      - db.t3.small
+      - db.t3.medium
+      - db.r5.large
+      - db.r5.xlarge
+      - db.r5.2xlarge
+      - db.r5.4xlarge
+      - db.r5.8xlarge
+      - db.r5.12xlarge
+      - db.r5.16xlarge
+      - db.r5.24xlarge
     ConstraintDescription: Must select a valid database instance type.
-    Default: db.m4.2xlarge
+    Default: db.t3.small
     Description: The name of the compute and memory capacity class of the DB instance.
     Type: String
   DBName:
     AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
-    Default: QuickstartAuroraDB
+    Default: drupaldb
     Description: Name of Aurora DB for Drupal Stack
     MaxLength: '64'
     MinLength: '5'
@@ -59,11 +47,10 @@ Parameters:
     AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
     ConstraintDescription: must begin with a letter and contain only alphanumeric
       characters.
-    Default: admin
+    Default: dbadmin
     Description: The database admin account username
     MaxLength: '16'
     MinLength: '1'
-    NoEcho: 'true'
     Type: String
   DBMasterUserPassword:
     AllowedPattern: (?=\S)[^@/"\r\n\t\f\s]*
@@ -96,8 +83,8 @@ Resources:
     Properties:
       BackupRetentionPeriod: !Ref 'DBBackupRetentionPeriod'
       DBSubnetGroupName: !Ref 'AuroraDBSubnetGroup'
-      Engine: aurora
-      EngineVersion: '5.6'
+      Engine: aurora-mysql
+      EngineVersion: '5.7'
       MasterUsername: !Ref 'DBMasterUsername'
       MasterUserPassword: !Ref 'DBMasterUserPassword'
       VpcSecurityGroupIds:
@@ -108,8 +95,7 @@ Resources:
   AuroraDBPrimaryInstance:
     Type: AWS::RDS::DBInstance
     Properties:
-      Engine: aurora
-      EngineVersion: '5.6'
+      Engine: aurora-mysql
       DBClusterIdentifier: !Ref 'AuroraDBCluster'
       DBInstanceClass: !Ref 'DBInstanceClass'
       DBSubnetGroupName: !Ref 'AuroraDBSubnetGroup'
@@ -121,8 +107,7 @@ Resources:
     Type: AWS::RDS::DBInstance
     Condition: CreateReadReplica
     Properties:
-      Engine: aurora
-      EngineVersion: '5.6'
+      Engine: aurora-mysql
       DBClusterIdentifier: !Ref 'AuroraDBCluster'
       DBInstanceClass: !Ref 'DBInstanceClass'
       DBSubnetGroupName: !Ref 'AuroraDBSubnetGroup'

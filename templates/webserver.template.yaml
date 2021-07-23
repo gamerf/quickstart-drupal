@@ -41,6 +41,8 @@ Metadata:
           - WebServerMaxSize
           - WebServerDesiredCapacity
           - KeyPair
+          - SSLCertificateId
+          - LatestAmiId
       - Label:
           default: CDN - CloudFront Configuration
         Parameters:
@@ -97,40 +99,42 @@ Parameters:
     Type: AWS::EC2::SecurityGroup::Id
   WebServerInstanceType:
     AllowedValues:
-      - t2.micro
-      - t2.small
-      - t2.medium
-      - t2.large
-      - m4.large
-      - m4.xlarge
-      - m4.2xlarge
-      - m4.4xlarge
-      - m4.10xlarge
-      - m3.medium
-      - m3.large
-      - m3.xlarge
-      - m3.2xlarge
-      - c4.large
-      - c4.xlarge
-      - c4.2xlarge
-      - c4.4xlarge
-      - c4.8xlarge
-      - c3.large
-      - c3.xlarge
-      - c3.2xlarge
-      - c3.4xlarge
-      - c3.8xlarge
-      - r3.large
-      - r3.xlarge
-      - r3.2xlarge
-      - r3.4xlarge
-      - r3.8xlarge
-      - i2.xlarge
-      - i2.2xlarge
-      - i2.4xlarge
-      - i2.8xlarge
+      - t3.medium
+      - t3.large
+      - t3a.medium
+      - t3a.large
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.8xlarge
+      - m5a.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.8xlarge
+      - c5.large
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5a.large
+      - c5a.xlarge
+      - c5a.2xlarge
+      - c5a.4xlarge
+      - c5a.8xlarge
+      - r5.large
+      - r5.xlarge
+      - r5.2xlarge
+      - r5.4xlarge
+      - r5.8xlarge
+      - r5a.large
+      - r5a.xlarge
+      - r5a.2xlarge
+      - r5a.4xlarge
+      - r5a.8xlarge
     ConstraintDescription: Choose an instance type.
-    Default: t2.micro
+    Default: t3.medium
     Description: Web Server node instance type
     Type: String
   WebServerSecurityGroup:
@@ -141,6 +145,9 @@ Parameters:
     Default: id_rsa_aws
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
     Type: AWS::EC2::KeyPair::KeyName
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
   DBEndpointAddress:
     Description: Aurora DB Endpoint
     Type: String
@@ -188,13 +195,12 @@ Parameters:
     NoEcho: 'true'
   PhpVersion:
     AllowedValues:
-      - php56
-      - php70
-      - php71
-    ConstraintDescription: 'Choose a valid PHP version. Values can be php56, php70,
-      php71 '
-    Default: php56
-    Description: PHP version to be installed. PHP-5.6=php56, PHP-7.0=php70, PHP-7.1=php71
+      - 'php7.2'
+      - 'php7.3'
+      - 'php7.4'
+    ConstraintDescription: 'Choose a valid PHP version. Values can be php7.2, php7.3, php7.4'
+    Default: 'php7.4'
+    Description: PHP version to be installed. PHP-7.2=php7.2, PHP-7.3=php7.3, PHP-7.4=php7.4
     Type: String
   DrupalVersion:
     Description: Drupal version to install
@@ -202,8 +208,9 @@ Parameters:
     AllowedValues:
       - '7'
       - '8'
-    ConstraintDescription: Allowed values 7 or 8
-    Default: '7'
+      - '9'
+    ConstraintDescription: Allowed values 7, 8 or 9
+    Default: '9'
   DrupalSiteName:
     Description: Descriptive name for your drupal site
     AllowedPattern: '[a-zA-Z][a-zA-Z0-9 ]*'
@@ -277,6 +284,10 @@ Parameters:
     Default: 'true'
     Description: Enable CloudFront Content Delivery Network
     Type: String
+  CFSSLCertificateId:
+    Default: ''
+    Description: (Optional) The ARN of the SSL certificate to use for the CloudFront Distribution(from us-east-1) 
+    Type: String
   CloudFrontPriceClass:
     AllowedValues:
       - use-all-edge-locations
@@ -310,38 +321,6 @@ Parameters:
     Description: ElastiCache Cluster Id.
     Type: String
     Default: ''
-Mappings:
-  AWSAMIRegionMap:
-    AMI:
-      AMZNLINUXHVM: amzn-ami-hvm-2018.03.0.20190611-x86_64-gp2
-    ap-northeast-1:
-      AMZNLINUXHVM: ami-02ddf94e5edc8e904
-    ap-northeast-2:
-      AMZNLINUXHVM: ami-0ecd78c22823e02ef
-    ap-south-1:
-      AMZNLINUXHVM: ami-05695932c5299858a
-    ap-southeast-1:
-      AMZNLINUXHVM: ami-043afc2b8b6cfba5c
-    ap-southeast-2:
-      AMZNLINUXHVM: ami-01393ce9a3ca55d67
-    ca-central-1:
-      AMZNLINUXHVM: ami-0fa94ecf2fef3420b
-    eu-central-1:
-      AMZNLINUXHVM: ami-0ba441bdd9e494102
-    eu-west-1:
-      AMZNLINUXHVM: ami-0e61341fa75fcaa18
-    eu-west-2:
-      AMZNLINUXHVM: ami-050b8344d77081f4b
-    sa-east-1:
-      AMZNLINUXHVM: ami-05b7dbc290217250d
-    us-east-1:
-      AMZNLINUXHVM: ami-0e2ff28bfb72a4e45
-    us-east-2:
-      AMZNLINUXHVM: ami-0998bf58313ab53da
-    us-west-1:
-      AMZNLINUXHVM: ami-021bb9f371690f97a
-    us-west-2:
-      AMZNLINUXHVM: ami-079f731edfe27c29c
 Rules:
   SslAndRoute53Rule:
     RuleCondition: !Or
@@ -361,6 +340,17 @@ Rules:
         AssertDescription: Parameter DrupalSiteDomain cannot be the default value
           'localhost.local' and must provide FQDN e.g. example.com, when SSLCertificateId
           or Route53HostedZoneIdis values are provided.
+  CFSslAndRoute53Rule:
+    RuleCondition: !Or
+      - !Not
+        - !Equals
+          - !Ref 'CFSSLCertificateId'
+          - ''
+      - !Not
+        - !Equals
+          - !Ref 'Route53HostedZoneId'
+          - ''
+    Assertions:
       - Assert: !Not
           - !Equals
             - !Ref 'CloudFrontAlias'
@@ -387,6 +377,10 @@ Conditions:
   UseSSL: !Not
     - !Equals
       - !Ref 'SSLCertificateId'
+      - ''
+  CFUseSSL: !Not
+    - !Equals
+      - !Ref 'CFSSLCertificateId'
       - ''
   DrupalCdnModuleCondition: !Equals
     - !Ref 'CloudFrontEnable'
@@ -484,12 +478,13 @@ Resources:
           install_drupal:
             - install_cfn
             - mount_efs
+            - enable_php_repo
             - createdb
+            - install-packageSet
             - !Join
               - ''
-              - - install-packageSet-
-                - !Ref 'PhpVersion'
-            - drupal
+              - - drupal-install-
+                - !Ref 'DrupalVersion'
             - !If
               - EnableElastiCacheCondition
               - !Join
@@ -497,8 +492,7 @@ Resources:
                 - - memcached-drupal-
                   - !Ref 'DrupalVersion'
               - !Ref 'AWS::NoValue'
-          drupal_cdn_module:
-            - download-cdn-module
+          drupal_cdn_module:            
             - !Join
               - ''
               - - install-cdn-module-
@@ -576,10 +570,24 @@ Resources:
               test: test ! -e /var/www
             '03_mount_efs':
               command: mount -a
+
+        enable_php_repo:
+          commands:
+            '01_update server':
+              command: yum update -y
+            '02_enable_php_repo':
+              command: !Join
+                - ''
+                - - 'amazon-linux-extras enable '
+                  - !Ref 'PhpVersion'
+            '03_clean_yum':
+              command: yum clean metadata
         createdb:
           packages:
+            rpm:
+              mysql: "https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm"
             yum:
-              mysql56: []
+              mysql-community-client: []
           files:
             /tmp/setup_drupaldb.sql:
               content: !Join
@@ -612,62 +620,24 @@ Resources:
                     \ user'\n"
             '02_cleanup':
               command: sudo rm -f /tmp/setup_drupaldb.sql
-        install-packageSet-php56:
+        install-packageSet:
           packages:
             yum:
               git: []
-              httpd24: []
-              php56: []
-              php56-cli: []
-              php56-common: []
-              php56-pdo: []
-              php56-mysqlnd: []
-              php56-xml: []
-              php56-gd: []
-              libssh2: []
-              php56-pecl-ssh2: []
-              php56-mbstring: []
-              php56-fpm: []
-              php56-opcache: []
-              php56-pecl-memcached: []
-        install-packageSet-php70:
-          packages:
-            yum:
-              git: []
-              httpd24: []
-              php70: []
-              php70-cli: []
-              php70-zip: []
-              php70-common: []
-              php70-pdo: []
-              php70-mysqlnd: []
-              php70-xml: []
-              php70-gd: []
-              libssh2: []
-              php70-pecl-ssh2: []
-              php70-mbstring: []
-              php70-fpm: []
-              php70-opcache: []
-              php70-pecl-memcached: []
-        install-packageSet-php71:
-          packages:
-            yum:
-              git: []
-              httpd24: []
-              php71: []
-              php71-cli: []
-              php71-common: []
-              php71-pdo: []
-              php71-mysqlnd: []
-              php71-xml: []
-              php71-gd: []
-              libssh2: []
-              php71-pecl-ssh2: []
-              php71-mbstring: []
-              php71-fpm: []
-              php71-opcache: []
-              php71-pecl-memcached: []
-        drupal:
+              httpd: []
+              php: []
+              php-cli: []
+              php-common: []
+              php-pdo: []
+              php-mysqlnd: []
+              php-xml: []
+              php-gd: []
+              php-mbstring: []
+              php-fpm: []
+              php-opcache: []
+              php-pecl-memcached: []
+              php-pecl-apcu: []
+        drupal-install-7:
           files:
             /etc/httpd/conf.d/drupal.conf:
               content: !Join
@@ -726,7 +696,7 @@ Resources:
             '04_00_download_drupal':
               command: !Join
                 - ''
-                - - /root/.config/composer/vendor/drush/drush/drush dl -y drupal-
+                - - /root/.config/composer/vendor/bin/drush dl -y drupal-
                   - !Ref 'DrupalVersion'
                   - ' --drupal-project-rename drupal'
               cwd: /root
@@ -745,7 +715,7 @@ Resources:
             '07_install_drupal':
               command: !Join
                 - ''
-                - - /root/.config/composer/vendor/drush/drush/drush site-install standard --yes
+                - - /root/.config/composer/vendor/bin/drush site-install standard --yes
                   - ' --site-name='''
                   - !Ref 'DrupalSiteName'
                   - ''' --site-mail='
@@ -767,20 +737,17 @@ Resources:
               env:
                 HOME: /root
                 DRUSH_PHP: /usr/bin/php
-            '08_drupal_files_folder_permission':
-              command: chown -R apache:apache /var/www/drupal/sites/default/files
-              test: test -e /var/www/drupal/sites/default/files
-            '09_configure_drupal_https':
+            '08_configure_drupal_https':
               cwd: /var/www/drupal/sites/default
               command: !If
                 - UseSSL
                 - echo "\$_SERVER['HTTPS'] = 'On';" >> settings.php
                 - ''
-            10_set_drupal_folder_owner:
+            '09_set_drupal_folder_owner':
               command: chown -R ec2-user:apache /var/www/drupal
-            11_set_drupal_folder_permissions:
+            '10_set_drupal_folder_permissions':
               command: chmod -R 750 /var/www/drupal
-            12_set_drupal_filesFolder_permissions:
+            '11_set_drupal_files_folder_permissions':
               command: chmod -R 770 /var/www/drupal/sites/default/files
           services:
             sysvinit:
@@ -791,6 +758,247 @@ Resources:
                   - /etc/httpd/conf.d/drupal.conf
                   - /etc/php.ini
                   - /var/www/drupal/sites/default/settings.php
+        drupal-install-8:
+          files:
+            /etc/httpd/conf.d/drupal.conf:
+              content: !Join
+                - ''
+                - - "<VirtualHost *:80>\n"
+                  - '    ServerAdmin '
+                  - !Ref 'DrupalSiteAdminEmail'
+                  - "\n"
+                  - '    ServerName  '
+                  - !Ref 'DrupalSiteDomain'
+                  - "\n"
+                  - '    ServerAlias '
+                  - !Join
+                    - ''
+                    - - www.
+                      - !Ref 'DrupalSiteDomain'
+                  - "\n"
+                  - "    DocumentRoot /var/www/drupal/web\n"
+                  - "    <Directory /var/www/drupal/web>\n"
+                  - "        Options -Indexes -MultiViews +FollowSymLinks\n"
+                  - "        AllowOverride All\n"
+                  - "        Order allow,deny\n"
+                  - "        allow from all\n"
+                  - "    </Directory>\n"
+                  - !If
+                    - UseSSL
+                    - !Join
+                      - ''
+                      - - "    RewriteEngine On\n"
+                        - "    RewriteCond %{HTTP:X-Forwarded-Proto} =http\n"
+                        - "    RewriteRule .* https://%{HTTP:Host}%{REQUEST_URI} [L,R=permanent]\n"
+                    - ''
+                  - "    LogLevel warn\n"
+                  - "    ErrorLog /var/log/httpd/drupal-error.log\n"
+                  - "    CustomLog /var/log/httpd/drupal-access.log combined\n"
+                  - "</VirtualHost>\n"
+                  - "ServerSignature Off\n"
+                  - "ServerTokens Prod\n"
+              mode: '000644'
+              owner: root
+              group: root
+          commands:
+            '01_install_composer':
+              command: curl -sS https://getcomposer.org/installer | php
+              cwd: /root
+              env:
+                HOME: /root
+            '02_install_drush':
+              command: /root/composer.phar global require drush/drush:9.*
+              test: test -e /root/composer.phar
+              env:
+                HOME: /root
+            '03_clean_httpd_confd_dir':
+              command: rm -f autoindex.conf notrace.conf userdir.conf welcome.conf
+              cwd: /etc/httpd/conf.d/
+            '04_00_download_drupal':
+              command: /root/composer.phar create-project drupal/recommended-project:8.* drupal
+              cwd: /root
+              env:
+                HOME: /root
+                DRUSH_PHP: /usr/bin/php
+            '04_01_move_drupal':
+              cwd: /root
+              command: mv /root/drupal /var/www/drupal
+            '05_disable_php_allow_url_fopen':
+              command: sed -i 's/allow_url_fopen = On/allow_url_fopen = Off/g' /etc/php.ini
+              test: test -e /etc/php.ini
+            '06_disable_expose_php':
+              command: sed -i 's/expose_php = On/expose_php = Off/g' /etc/php.ini
+              test: test -e /etc/php.ini
+            '07_install_drupal':
+              command: !Join
+                - ''
+                - - /root/.config/composer/vendor/bin/drush site-install standard --yes
+                  - ' --site-name='''
+                  - !Ref 'DrupalSiteName'
+                  - ''' --site-mail='
+                  - !Ref 'DrupalSiteAdminEmail'
+                  - ' --account-name='
+                  - !Ref 'DrupalSiteAdminUsername'
+                  - ' --account-pass='
+                  - !Ref 'DrupalSiteAdminPassword'
+                  - ' --db-url=mysql://'
+                  - !Ref 'DrupalDbUsername'
+                  - ':'
+                  - !Ref 'DrupalDbPassword'
+                  - '@'
+                  - !Ref 'DBEndpointAddress'
+                  - /
+                  - !Ref 'DrupalDbName'
+                  - " --db-prefix=drupal_\n"
+              cwd: /var/www/drupal
+              env:
+                HOME: /root
+                DRUSH_PHP: /usr/bin/php
+            '08_configure_drupal_https':
+              cwd: /var/www/drupal/web/sites/default
+              command: !If
+                - UseSSL
+                - echo "\$_SERVER['HTTPS'] = 'On';" >> settings.php
+                - ''
+            '09_set_drupal_folder_owner':
+              command: chown -R ec2-user:apache /var/www/drupal
+            '10_set_drupal_folder_permissions':
+              command: chmod -R 750 /var/www/drupal
+            '11_set_drupal_files_folder_permissions':
+              command: chmod -R 770 /var/www/drupal/web/sites/default/files
+          services:
+            sysvinit:
+              httpd:
+                enabled: 'true'
+                ensureRunning: 'true'
+                files:
+                  - /etc/httpd/conf.d/drupal.conf
+                  - /etc/php.ini
+                  - /var/www/drupal/web/sites/default/settings.php
+        drupal-install-9:
+          files:
+            /etc/httpd/conf.d/drupal.conf:
+              content: !Join
+                - ''
+                - - "<VirtualHost *:80>\n"
+                  - '    ServerAdmin '
+                  - !Ref 'DrupalSiteAdminEmail'
+                  - "\n"
+                  - '    ServerName  '
+                  - !Ref 'DrupalSiteDomain'
+                  - "\n"
+                  - '    ServerAlias '
+                  - !Join
+                    - ''
+                    - - www.
+                      - !Ref 'DrupalSiteDomain'
+                  - "\n"
+                  - "    DocumentRoot /var/www/drupal/web\n"
+                  - "    <Directory /var/www/drupal/web>\n"
+                  - "        Options -Indexes -MultiViews +FollowSymLinks\n"
+                  - "        AllowOverride All\n"
+                  - "        Order allow,deny\n"
+                  - "        allow from all\n"
+                  - "    </Directory>\n"
+                  - !If
+                    - UseSSL
+                    - !Join
+                      - ''
+                      - - "    RewriteEngine On\n"
+                        - "    RewriteCond %{HTTP:X-Forwarded-Proto} =http\n"
+                        - "    RewriteRule .* https://%{HTTP:Host}%{REQUEST_URI} [L,R=permanent]\n"
+                    - ''
+                  - "    LogLevel warn\n"
+                  - "    ErrorLog /var/log/httpd/drupal-error.log\n"
+                  - "    CustomLog /var/log/httpd/drupal-access.log combined\n"
+                  - "</VirtualHost>\n"
+                  - "ServerSignature Off\n"
+                  - "ServerTokens Prod\n"
+              mode: '000644'
+              owner: root
+              group: root
+          commands:
+            '01_install_composer':
+              command: curl -sS https://getcomposer.org/installer | php
+              cwd: /root
+              env:
+                HOME: /root
+            '02_install_drush':
+              command: /root/composer.phar global require drush/drush:10.*
+              test: test -e /root/composer.phar
+              env:
+                HOME: /root
+            '03_clean_httpd_confd_dir':
+              command: rm -f autoindex.conf notrace.conf userdir.conf welcome.conf
+              cwd: /etc/httpd/conf.d/
+            '04_download_drupal':
+              command: /root/composer.phar create-project drupal/recommended-project:9.* drupal
+              cwd: /root
+              env:
+                HOME: /root
+                DRUSH_PHP: /usr/bin/php
+            '05_unlimit_php_memory':
+              command: sed -i 's/memory_limit = 128M/memory_limit = -1/g' /etc/php.ini
+            '06_install_local_drush':
+              cwd: /root/drupal
+              command: /root/composer.phar require drush/drush:^10
+              env:
+                HOME: /root              
+            '07_disable_php_allow_url_fopen':
+              command: sed -i 's/allow_url_fopen = On/allow_url_fopen = Off/g' /etc/php.ini
+              test: test -e /etc/php.ini
+            '08_disable_expose_php':
+              command: sed -i 's/expose_php = On/expose_php = Off/g' /etc/php.ini
+              test: test -e /etc/php.ini 
+            '09_move_drupal':
+              cwd: /root
+              command: mv /root/drupal /var/www/drupal
+            '10_install_drupal':
+              command: !Join
+                - ''
+                - - /root/.config/composer/vendor/bin/drush site-install standard --yes
+                  - ' --site-name='''
+                  - !Ref 'DrupalSiteName'
+                  - ''' --site-mail='
+                  - !Ref 'DrupalSiteAdminEmail'
+                  - ' --account-name='
+                  - !Ref 'DrupalSiteAdminUsername'
+                  - ' --account-pass='
+                  - !Ref 'DrupalSiteAdminPassword'
+                  - ' --db-url=mysql://'
+                  - !Ref 'DrupalDbUsername'
+                  - ':'
+                  - !Ref 'DrupalDbPassword'
+                  - '@'
+                  - !Ref 'DBEndpointAddress'
+                  - /
+                  - !Ref 'DrupalDbName'
+                  - " --db-prefix=drupal_\n"
+              cwd: /var/www/drupal
+              env:
+                HOME: /root
+                DRUSH_PHP: /usr/bin/php
+            '11_configure_drupal_https':
+              cwd: /var/www/drupal/web/sites/default
+              command: !If
+                - UseSSL
+                - echo "\$_SERVER['HTTPS'] = 'On';" >> settings.php
+                - ''
+            '12_set_drupal_folder_owner':
+              command: chown -R ec2-user:apache /var/www/drupal
+            '13_set_drupal_folder_permissions':
+              command: chmod -R 750 /var/www/drupal
+            '14_set_drupal_files_folder_permissions':
+              command: chmod -R 770 /var/www/drupal/web/sites/default/files            
+          services:
+            sysvinit:
+              httpd:
+                enabled: 'true'
+                ensureRunning: 'true'
+                files:
+                  - /etc/httpd/conf.d/drupal.conf
+                  - /etc/php.ini
+                  - /var/www/drupal/web/sites/default/settings.php
         memcached-drupal-7:
           files:
             /tmp/drupalCacheConfig.sh:
@@ -833,7 +1041,7 @@ Resources:
           commands:
             '01_download_memcahe_module':
               cwd: /var/www/drupal
-              command: /root/.config/composer/vendor/drush/drush/drush dl memcache
+              command: /root/.config/composer/vendor/bin/drush dl memcache
               env:
                 HOME: /root
                 DRUSH_PHP: /usr/bin/php
@@ -842,13 +1050,13 @@ Resources:
               command: /tmp/drupalCacheConfig.sh >> settings.php
             '03_enable_memcache_modules':
               cwd: /var/www/drupal
-              command: /root/.config/composer/vendor/drush/drush/drush en -y memcache memcache_admin
+              command: /root/.config/composer/vendor/bin/drush en -y memcache memcache_admin
               env:
                 HOME: /root
                 DRUSH_PHP: /usr/bin/php
             '04_clear_cache':
               cwd: /var/www/drupal
-              command: /root/.config/composer/vendor/drush/drush/drush cc drush
+              command: /root/.config/composer/vendor/bin/drush cc drush
               env:
                 HOME: /root
                 DRUSH_PHP: /usr/bin/php
@@ -860,12 +1068,12 @@ Resources:
                 - - "#!/bin/bash\n"
                   - "printf \"\n"
                   - "// Memcache Configuration\n"
-                  - "\\$settings['cache']['default'] = 'cache.backend.memcache_storage';\n"
-                  - "\\$settings['memcache_storage']['key_prefix'] = 'dr8';\n"
-                  - "\\$settings['memcache_storage']['bins'] = [\n"
+                  - "\\$settings['cache']['default'] = 'cache.backend.memcache';\n"
+                  - "\\$settings['memcache']['key_prefix'] = 'dr8';\n"
+                  - "\\$settings['memcache']['bins'] = [\n"
                   - "    'cache' => 'default',\n"
                   - "];\n"
-                  - "\\$settings['memcache_storage']['memcached_servers'] =  [\\n\"\
+                  - "\\$settings['memcache']['servers'] =  [\\n\"\
                     \n"
                   - "for node in \\\n"
                   - "`aws elasticache describe-cache-clusters --show-cache-node-info\
@@ -887,27 +1095,137 @@ Resources:
               owner: root
               group: root
           commands:
-            '01_enable_memcahe':
+            '01_enable_php_allow_url_fopen':
+              command: sed -i 's/allow_url_fopen = Off/allow_url_fopen = On/g' /etc/php.ini
+              test: test -e /etc/php.ini
+            '02_add_memcache_module_to_required':
               cwd: /var/www/drupal
-              command: /root/.config/composer/vendor/drush/drush/drush en -y memcache memcache_storage
+              command: /root/composer.phar require drupal/memcache drupal/memcache_admin
+              env:
+                HOME: /root
+            '03_disable_php_allow_url_fopen':
+              command: sed -i 's/allow_url_fopen = On/allow_url_fopen = Off/g' /etc/php.ini
+              test: test -e /etc/php.ini
+            '04_enable_memcahe':
+              cwd: /var/www/drupal
+              command: /root/.config/composer/vendor/bin/drush en -y memcache memcache_admin
               env:
                 HOME: /root
                 DRUSH_PHP: /usr/bin/php
-            '02_append_memcache_settings':
-              cwd: /var/www/drupal/sites/default/
+            '05_append_memcache_settings':
+              cwd: /var/www/drupal/web/sites/default/
               command: /tmp/drupalCacheConfig.sh >> settings.php
-        download-cdn-module:
+        memcached-drupal-9:
+          files:
+            /tmp/drupalCacheConfig.sh:
+              content: !Join
+                - ''
+                - - "#!/bin/bash\n"
+                  - "printf \"\n"
+                  - "// Memcache Configuration\n"
+                  - "\\$settings['cache']['default'] = 'cache.backend.memcache';\n"
+                  - "\\$settings['memcache']['key_prefix'] = 'dr9';\n"
+                  - "\\$settings['memcache']['bins'] = [\n"
+                  - "    'cache' => 'default',\n"
+                  - "];\n"
+                  - "\\$settings['memcache']['servers'] =  [\\n\"\
+                    \n"
+                  - "for node in \\\n"
+                  - "`aws elasticache describe-cache-clusters --show-cache-node-info\
+                    \ \\\n"
+                  - '--cache-cluster-id '
+                  - !Ref 'ElastiCacheClusterId'
+                  - " \\\n"
+                  - "--query 'CacheClusters[0].CacheNodes[*].Endpoint.[Address, Port]'\
+                    \ \\\n"
+                  - --output=text --region='
+                  - !Ref 'AWS::Region'
+                  - "'\\\n"
+                  - "| sed -E -e 's/[[:space:]]+/:/g'`\n"
+                  - "do\n"
+                  - "printf \"    '\"$node\"' => 'default',\\n\"\n"
+                  - "done\n"
+                  - "printf \"];\"\n"
+              mode: '000500'
+              owner: root
+              group: root
           commands:
-            '01_download_cdn_module':
+            '01_enable_php_allow_url_fopen':
+              command: sed -i 's/allow_url_fopen = Off/allow_url_fopen = On/g' /etc/php.ini
+              test: test -e /etc/php.ini
+            '02_add_memcache_module_to_required':
               cwd: /var/www/drupal
-              command: /root/.config/composer/vendor/drush/drush/drush dl cdn
+              command: /root/composer.phar require drupal/memcache drupal/memcache_admin
+              env:
+                HOME: /root
+            '03_disable_php_allow_url_fopen':
+              command: sed -i 's/allow_url_fopen = On/allow_url_fopen = Off/g' /etc/php.ini
+              test: test -e /etc/php.ini
+            '04_enable_memcahe':
+              cwd: /var/www/drupal
+              command: /root/.config/composer/vendor/bin/drush en -y memcache memcache_admin
               env:
                 HOME: /root
                 DRUSH_PHP: /usr/bin/php
+            '05_append_memcache_settings':
+              cwd: /var/www/drupal/web/sites/default/
+              command: /tmp/drupalCacheConfig.sh >> settings.php
+        install-cdn-module-7:
+          commands:
+            '00_download_cdn_module':
+              cwd: /var/www/drupal
+              command: /root/.config/composer/vendor/bin/drush dl cdn
+              env:
+                HOME: /root
+                DRUSH_PHP: /usr/bin/php
+            '01_enable_cdn_module':
+              cwd: /var/www/drupal
+              command: /root/.config/composer/vendor/bin/drush en -y cdn
+              env:
+                HOME: /root
+                DRUSH_PHP: /usr/bin/php
+            '02_configure_cdn_module':
+              cwd: /var/www/drupal
+              command: !If
+                - DrupalCdnModuleCondition
+                - !Join
+                  - ''
+                  - - /root/.config/composer/vendor/bin/drush vset preprocess_js TRUE
+                    - ' && '
+                    - /root/.config/composer/vendor/bin/drush vset preprocess_css TRUE
+                    - ' && '
+                    - /root/.config/composer/vendor/bin/drush vset cdn_status '2'
+                    - ' && '
+                    - /root/.config/composer/vendor/bin/drush vset cdn_basic_mapping "http://
+                    - !If
+                      - CloudFrontAliasRoute53Condition
+                      - !Ref 'CloudFrontAlias'
+                      - !GetAtt 'CloudFrontStack.Outputs.CdnUrl'
+                    - '"'
+                    - !If
+                      - UseSSL
+                      - !Join
+                        - ''
+                        - - ' && '
+                          - /root/.config/composer/vendor/bin/drush vset cdn_https_support
+                            TRUE
+                      - ''
+                - ''
         install-cdn-module-8:
           commands:
-            '01_edit_cdn_settings_file':
-              cwd: /var/www/drupal/modules/cdn/config/install
+            '01_enable_php_allow_url_fopen':
+              command: sed -i 's/allow_url_fopen = Off/allow_url_fopen = On/g' /etc/php.ini
+              test: test -e /etc/php.ini
+            '02_add_cdn_module_to_required':
+              cwd: /var/www/drupal
+              command: /root/composer.phar require drupal/cdn drupal/cdn_ui
+              env:
+                HOME: /root
+            '03_disable_php_allow_url_fopen':
+              command: sed -i 's/allow_url_fopen = On/allow_url_fopen = Off/g' /etc/php.ini
+              test: test -e /etc/php.ini  
+            '04_edit_cdn_settings_file':
+              cwd: /var/www/drupal/web/modules/contrib/cdn/config/install
               command: !If
                 - DrupalCdnModuleCondition
                 - !Join
@@ -920,56 +1238,52 @@ Resources:
                       - CloudFrontAliasRoute53Condition
                       - !Ref 'CloudFrontAlias'
                       - !GetAtt 'CloudFrontStack.Outputs.CdnUrl'
-                    - "\n  conditions: []\n\" > cdn.settings.yml"
+                    - "\n  conditions: []\nscheme: https://\nfarfuture:\n  status: true\nstream_wrappers:\n  - public\n\" > cdn.settings.yml"
                 - ''
-            # Disabling 02_enable_cdn_module command. Drush is throwing a segmentation fault. See https://github.com/aws-quickstart/quickstart-drupal/issues/19#issuecomment-725477739
-            # CDN module needs to be configured manually
-#            '02_enable_cdn_module':
-#              cwd: /var/www/drupal
-#              command: /root/.config/composer/vendor/drush/drush/drush en -y cdn cdn_ui
-#              env:
-#                HOME: /root
-#                DRUSH_PHP: /usr/bin/php
-        install-cdn-module-7:
-          commands:
-            '01_enable_cdn_module':
+            '05_enable_cdn_module':
               cwd: /var/www/drupal
-              command: /root/.config/composer/vendor/drush/drush/drush en -y cdn
+              command: /root/.config/composer/vendor/bin/drush en -y cdn cdn_ui
               env:
                 HOME: /root
                 DRUSH_PHP: /usr/bin/php
-            '02_configure_cdn_module':
+        install-cdn-module-9:
+          commands:
+            '01_enable_php_allow_url_fopen':
+              command: sed -i 's/allow_url_fopen = Off/allow_url_fopen = On/g' /etc/php.ini
+              test: test -e /etc/php.ini
+            '02_add_cdn_module_to_required':
               cwd: /var/www/drupal
+              command: /root/composer.phar require drupal/cdn drupal/cdn_ui
+              env:
+                HOME: /root
+            '03_disable_php_allow_url_fopen':
+              command: sed -i 's/allow_url_fopen = On/allow_url_fopen = Off/g' /etc/php.ini
+              test: test -e /etc/php.ini                
+            '04_edit_cdn_settings_file':
+              cwd: /var/www/drupal/web/modules/contrib/cdn/config/install
               command: !If
                 - DrupalCdnModuleCondition
                 - !Join
                   - ''
-                  - - /root/.config/composer/vendor/drush/drush/drush vset preprocess_js TRUE
+                  - - mv cdn.settings.yml cdn.settings.yml.org
                     - ' && '
-                    - /root/.config/composer/vendor/drush/drush/drush vset preprocess_css TRUE
-                    - ' && '
-                    - /root/.config/composer/vendor/drush/drush/drush vset cdn_status '2'
-                    - ' && '
-                    - /root/.config/composer/vendor/drush/drush/drush vset cdn_basic_mapping "http://
+                    - "printf \"langcode: en\nstatus: true\nmapping:\n  type: simple\n\
+                      \  domain: "
                     - !If
                       - CloudFrontAliasRoute53Condition
                       - !Ref 'CloudFrontAlias'
                       - !GetAtt 'CloudFrontStack.Outputs.CdnUrl'
-                    - '"'
-                    - !If
-                      - UseSSL
-                      - !Join
-                        - ''
-                        - - ' && '
-                          - /root/.config/composer/vendor/drush/drush/drush vset cdn_https_support
-                            TRUE
-                      - ''
+                    - "\n  conditions:\n    not:\n      extensions: [css, js]\nscheme: https://\nfarfuture:\n  status: true\nstream_wrappers:\n  - public\n\" > cdn.settings.yml"
                 - ''
+            '05_enable_cdn_module':
+              cwd: /var/www/drupal
+              command: /root/.config/composer/vendor/bin/drush en -y cdn cdn_ui
+              env:
+                HOME: /root
+                DRUSH_PHP: /usr/bin/php
     Properties:
-      ImageId: !FindInMap
-        - AWSAMIRegionMap
-        - !Ref 'AWS::Region'
-        - AMZNLINUXHVM
+      ImageId: !Ref LatestAmiId
+
       InstanceType: !Ref 'WebServerInstanceType'
       SubnetId: !Select
         - '0'
@@ -1178,8 +1492,8 @@ Resources:
           - ','
           - - !Ref 'CloudFrontAlias'
         CustomSSLCertificateId: !If
-          - UseSSL
-          - !Ref 'SSLCertificateId'
+          - CFUseSSL
+          - !Ref 'CFSSLCertificateId'
           - ''
         CloudFrontPriceClass: !Ref 'CloudFrontPriceClass'
   CloudFrontAliasRoute53Record:

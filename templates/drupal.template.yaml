@@ -61,6 +61,7 @@ Metadata:
           default: CDN - CloudFront Configuration
         Parameters:
           - CloudFrontEnable
+          - CFSSLCertificateId          
           - CloudFrontPriceClass
       - Label:
           default: AWS Quick Start Configuration
@@ -122,7 +123,7 @@ Metadata:
       QSS3KeyPrefix:
         default: Quick Start S3 Key Prefix
       SSLCertificateId:
-        default: SSL Certificate ARN
+        default: SSL Certificate ARN for Application Load Balancer
       VPCCIDR:
         default: VPC CIDR
       VPCID:
@@ -137,6 +138,8 @@ Metadata:
         default: Min Number of Instances
       CloudFrontEnable:
         default: Enable CloudFront
+      CFSSLCertificateId:
+        default: SSL Certificate ARN for CloudFront Distribution Custom Domain
       CloudFrontPriceClass:
         default: CloudFront PriceClass
       CloudFrontAlias:
@@ -173,15 +176,18 @@ Parameters:
     Type: String
   DBInstanceClass:
     AllowedValues:
-      - db.t2.small
-      - db.t2.medium
-      - db.r3.large
-      - db.r3.xlarge
-      - db.r3.2xlarge
-      - db.r3.4xlarge
-      - db.r3.8xlarge
+      - db.t3.small
+      - db.t3.medium
+      - db.r5.large
+      - db.r5.xlarge
+      - db.r5.2xlarge
+      - db.r5.4xlarge
+      - db.r5.8xlarge
+      - db.r5.12xlarge
+      - db.r5.16xlarge
+      - db.r5.24xlarge
     ConstraintDescription: Must select a valid database instance type.
-    Default: db.t2.small
+    Default: db.t3.small
     Description: Select Instance size for the Database
     Type: String
   DBMasterUserPassword:
@@ -276,8 +282,9 @@ Parameters:
     AllowedValues:
       - '7'
       - '8'
-    ConstraintDescription: Allowed values 7 or 8
-    Default: '7'
+      - '9'
+    ConstraintDescription: Allowed values 7, 8 or 9
+    Default: '9'
     Description: Drupal version to install
     Type: String
   KeyPair:
@@ -287,13 +294,12 @@ Parameters:
     Type: AWS::EC2::KeyPair::KeyName
   PhpVersion:
     AllowedValues:
-      - php56
-      - php70
-      - php71
-    ConstraintDescription: 'Choose a valid PHP version. Values can be php56, php70,
-      php71 '
-    Default: php71
-    Description: PHP version to be installed. PHP-5.6=php56, PHP-7.0=php70, PHP-7.1=php71
+      - 'php7.2'
+      - 'php7.3'
+      - 'php7.4'
+    ConstraintDescription: 'Choose a valid PHP version. Values can be php7.2, php7.3, php7.4'
+    Default: 'php7.4'
+    Description: PHP version to be installed. PHP-7.2=php7.2, PHP-7.3=php7.3, PHP-7.4=php7.4
     Type: String
   PrivateSubnet1ID:
     Description: Private Subnet ID 1 located in Availability Zone 1
@@ -352,40 +358,42 @@ Parameters:
     Type: Number
   WebServerInstanceType:
     AllowedValues:
-      - t2.micro
-      - t2.small
-      - t2.medium
-      - t2.large
-      - m4.large
-      - m4.xlarge
-      - m4.2xlarge
-      - m4.4xlarge
-      - m4.10xlarge
-      - m3.medium
-      - m3.large
-      - m3.xlarge
-      - m3.2xlarge
-      - c4.large
-      - c4.xlarge
-      - c4.2xlarge
-      - c4.4xlarge
-      - c4.8xlarge
-      - c3.large
-      - c3.xlarge
-      - c3.2xlarge
-      - c3.4xlarge
-      - c3.8xlarge
-      - r3.large
-      - r3.xlarge
-      - r3.2xlarge
-      - r3.4xlarge
-      - r3.8xlarge
-      - i2.xlarge
-      - i2.2xlarge
-      - i2.4xlarge
-      - i2.8xlarge
+      - t3.medium
+      - t3.large
+      - t3a.medium
+      - t3a.large
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.8xlarge
+      - m5a.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.8xlarge
+      - c5.large
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5a.large
+      - c5a.xlarge
+      - c5a.2xlarge
+      - c5a.4xlarge
+      - c5a.8xlarge
+      - r5.large
+      - r5.xlarge
+      - r5.2xlarge
+      - r5.4xlarge
+      - r5.8xlarge
+      - r5a.large
+      - r5a.xlarge
+      - r5a.2xlarge
+      - r5a.4xlarge
+      - r5a.8xlarge
     ConstraintDescription: Choose an instance type.
-    Default: t2.micro
+    Default: t3.medium
     Description: Select webserver instance size
     Type: String
   WebServerMaxSize:
@@ -402,6 +410,10 @@ Parameters:
       - 'false'
     Default: 'true'
     Description: Enable CloudFront Content Delivery Network
+    Type: String
+  CFSSLCertificateId:
+    Default: ''
+    Description: (Optional) The ARN of the SSL certificate to use for the CloudFront Distribution(from us-east-1) 
     Type: String
   CloudFrontPriceClass:
     AllowedValues:
@@ -441,31 +453,22 @@ Parameters:
     Type: String
   ElastiCacheNodeType:
     AllowedValues:
-      - cache.t2.micro
-      - cache.t2.small
-      - cache.t2.medium
-      - cache.m3.medium
-      - cache.m3.large
-      - cache.m3.xlarge
-      - cache.m3.2xlarge
-      - cache.m4.large
-      - cache.m4.xlarge
-      - cache.m4.2xlarge
-      - cache.m4.4xlarge
-      - cache.m4.10xlarge
-      - cache.r3.large
-      - cache.r3.xlarge
-      - cache.r3.2xlarge
-      - cache.r3.4xlarge
-      - cache.r3.8xlarge
-      - cache.r4.large
-      - cache.r4.xlarge
-      - cache.r4.2xlarge
-      - cache.r4.4xlarge
-      - cache.r4.8xlarge
-      - cache.r4.16xlarge
+      - cache.t3.micro
+      - cache.t3.small
+      - cache.t3.medium
+      - cache.m5.large
+      - cache.m5.xlarge
+      - cache.m5.2xlarge
+      - cache.m5.4xlarge
+      - cache.m5.12xlarge
+      - cache.r5.large
+      - cache.r5.xlarge
+      - cache.r5.2xlarge
+      - cache.r5.4xlarge
+      - cache.r5.12xlarge
+      - cache.r5.24xlarge
     ConstraintDescription: Must select a valid ElastiCache node type.
-    Default: cache.t2.micro
+    Default: cache.t3.micro
     Description: The compute and memory capacity of nodes in a cache cluster.
     Type: String
   ElastiCacheNumberOfNodes:
@@ -483,11 +486,12 @@ Rules:
             - us-west-2
             - eu-central-1
             - eu-west-1
+            - eu-west-2
             - ap-southeast-2
           - !Ref 'AWS::Region'
         AssertDescription: >-
           This Quick Start uses Amazon EFS which is only available in the US East
-          (N. Virginia), US East (Ohio), US West (Oregon), EU (Frankfurt), EU (Ireland)
+          (N. Virginia), US East (Ohio), US West (Oregon), EU (Frankfurt), EU (Ireland), EU (London)
           and Asia Pacific (Sydney) regions. Please launch the stack in one of these
           regions
   SslAndRoute53Rule:
@@ -508,6 +512,17 @@ Rules:
         AssertDescription: Parameter DrupalSiteDomain cannot be the default value
           'localhost.local' and must provide FQDN e.g. example.com, when SSLCertificateId
           or Route53HostedZoneIdis values are provided.
+  CFSslAndRoute53Rule:
+    RuleCondition: !Or
+      - !Not
+        - !Equals
+          - !Ref 'CFSSLCertificateId'
+          - ''
+      - !Not
+        - !Equals
+          - !Ref 'Route53HostedZoneId'
+          - ''
+    Assertions:
       - Assert: !Not
           - !Equals
             - !Ref 'CloudFrontAlias'
@@ -614,6 +629,7 @@ Resources:
         WebELBSecurityGroup: !GetAtt 'SecurityGroupsStack.Outputs.ELBSecurityGroup'
         SSLCertificateId: !Ref 'SSLCertificateId'
         CloudFrontEnable: !Ref 'CloudFrontEnable'
+        CFSSLCertificateId: !Ref 'CFSSLCertificateId'
         CloudFrontAlias: !Ref 'CloudFrontAlias'
         CloudFrontPriceClass: !Ref 'CloudFrontPriceClass'
         Route53HostedZoneId: !Ref 'Route53HostedZoneId'
@@ -625,7 +641,7 @@ Resources:
 Outputs:
   ELBURL:
     Description: The URL of the ELB that you should use to create a CNAME/ALIAS DNS
-      recrod to point to your Domain e.g. mysite.com
+      record to point to your Domain e.g. mysite.com
     Value: !GetAtt 'WebserverStack.Outputs.ELBURL'
   DrupalSiteUrl:
     Description: Drupal Site URL
