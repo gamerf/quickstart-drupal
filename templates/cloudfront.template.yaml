@@ -70,7 +70,7 @@ Resources:
           CloudFrontDefaultCertificate: !If
             - DistributionHasSSL
             - !Ref 'AWS::NoValue'
-            - 'true'
+            - true
           SslSupportMethod: !If
             - DistributionHasSSL
             - sni-only
@@ -80,15 +80,15 @@ Resources:
           AllowedMethods:
             - HEAD
             - GET
-          MinTTL: '0'
-          MaxTTL: '31536000'
-          DefaultTTL: '86400'
+          MinTTL: 0
+          MaxTTL: 31536000
+          DefaultTTL: 86400
           ForwardedValues:
-            QueryString: 'false'
+            QueryString: false
           TargetOriginId: alb
           ViewerProtocolPolicy: allow-all
-          Compress: 'false'
-        Enabled: 'true'
+          Compress: false
+        Enabled: true
         Origins:
           - Id: alb
             DomainName: !Ref 'OriginDnsName'

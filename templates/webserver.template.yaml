@@ -461,8 +461,7 @@ Resources:
       PolicyDocument:
         Statement:
           - Action:
-              - elasticache:Describe*
-              - elasticache:List*
+              - elasticache:DescribeCacheClusters
             Effect: Allow
             Resource: '*'
       Roles:
@@ -1362,23 +1361,22 @@ Resources:
       TargetGroupARNs:
         - !Ref 'ALBTargetGroup'
       VPCZoneIdentifier: !Ref 'WebServerSubnets'
-      NotificationConfiguration:
-        TopicARN: !Ref 'NotificationTopic'
-        NotificationTypes:
-          - autoscaling:EC2_INSTANCE_LAUNCH
-          - autoscaling:EC2_INSTANCE_LAUNCH_ERROR
-          - autoscaling:EC2_INSTANCE_TERMINATE
-          - autoscaling:EC2_INSTANCE_TERMINATE_ERROR
+      NotificationConfigurations:
+        - TopicARN: !Ref 'NotificationTopic'
+          NotificationTypes:
+            - autoscaling:EC2_INSTANCE_LAUNCH
+            - autoscaling:EC2_INSTANCE_LAUNCH_ERROR
+            - autoscaling:EC2_INSTANCE_TERMINATE
+            - autoscaling:EC2_INSTANCE_TERMINATE_ERROR
       Tags:
         - Key: Name
           Value: !Join
             - '-'
             - - !Ref 'AWS::StackName'
               - Web Server
-          PropagateAtLaunch: 'true'
+          PropagateAtLaunch: true
   WebServerLC:
     Type: AWS::AutoScaling::LaunchConfiguration
-    DependsOn: CreateDrupalAMI
     Properties:
       ImageId: !GetAtt 'CreateDrupalAMI.Outputs.AMIId'
       InstanceType: !Ref 'WebServerInstanceType'

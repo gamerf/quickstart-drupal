@@ -72,7 +72,7 @@ Resources:
       Description: Create an AMI from  EC2 Instance and return AMI-ID.
       Handler: index.lambda_handler
       Runtime: python3.7
-      Timeout: '300'
+      Timeout: 300
       Role: !GetAtt 'CreateAMIFunctionExecuteRole.Arn'
       Code:
         ZipFile: !Join
@@ -111,7 +111,7 @@ Resources:
     Properties:
       Handler: index.lambda_handler
       Runtime: python3.7
-      Timeout: '300'
+      Timeout: 300
       Role: !GetAtt 'CreateAMIFunctionExecuteRole.Arn'
       Code:
         ZipFile: !Join

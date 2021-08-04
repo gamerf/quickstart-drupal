@@ -510,9 +510,9 @@ Parameters:
     Type: String
   ElastiCacheAutoMinorVersionUpgrade:
     AllowedValues:
-      - 'true'
-      - 'false'
-    Default: 'true'
+      - true
+      - false
+    Default: true
     Description: Select true/false to setup Auto Minor Version upgrade
     Type: String
   ElastiCacheNodeType:
@@ -615,7 +615,6 @@ Resources:
         PublicSubnet2CIDR: !Ref 'PublicSubnet2CIDR'
         VPCCIDR: !Ref 'VPCCIDR'
   BastionStack:
-    DependsOn: VPCStack
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL:

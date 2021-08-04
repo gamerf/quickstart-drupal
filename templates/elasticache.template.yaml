@@ -12,9 +12,9 @@ Parameters:
     Type: List<AWS::EC2::SecurityGroup::Id>
   AutoMinorVersionUpgrade:
     AllowedValues:
-      - 'true'
-      - 'false'
-    Default: 'true'
+      - true
+      - false
+    Default: true
     Description: Select true/false to setup Auto Minor Version upgrade
     Type: String
   NodeType:
@@ -54,6 +54,7 @@ Resources:
     Properties:
       Engine: memcached
       EngineVersion: 1.5.16
+      AutoMinorVersionUpgrade: !Ref AutoMinorVersionUpgrade
       CacheNodeType: !Ref 'NodeType'
       NumCacheNodes: !Ref 'NumberOfNode'
       CacheSubnetGroupName: !Ref 'ElastiCacheSubnetGroup'

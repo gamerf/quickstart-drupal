@@ -3,12 +3,13 @@ project:
   owner: quickstart-eng@amazon.com
   package_lambda: false
   regions:
-  - ap-southeast-2
-  - eu-central-1
-  - eu-west-1
   - us-east-1
   - us-east-2
   - us-west-2
+  - eu-central-1
+  - eu-west-1
+  - eu-west-2
+  - ap-southeast-2
   s3_bucket: ''
   shorten_stack_name: true
   parameters:
@@ -20,13 +21,13 @@ project:
     CloudFrontPriceClass: use-all-edge-locations
     DBAutoMinorVersionUpgrade: 'true'
     DBBackupRetentionPeriod: '7'
-    DBInstanceClass: db.t2.small
+    DBInstanceClass: db.t3.small
+    DBMultiAZ: 'true'
     DBMasterUsername: dbadmin
     DBMasterUserPassword: $[taskcat_genpass_10]
     DrupalDbPassword: $[taskcat_genpass_10]
     DrupalSiteAdminPassword: $[taskcat_genpass_10]
     DrupalSiteAdminEmail: foo@example.com
-    DBMultiAZ: 'true'
     DrupalDbName: drupaldb
     DrupalDbUsername: drupal
     DrupalSiteAdminUsername: drupaladmin
@@ -34,9 +35,9 @@ project:
     DrupalSiteName: Drupal Test Site
     ElastiCacheAutoMinorVersionUpgrade: 'true'
     ElastiCacheEnable: 'true'
-    ElastiCacheNodeType: cache.t2.micro
+    ElastiCacheNodeType: cache.t3.micro
     ElastiCacheNumberOfNodes: '2'
-    PhpVersion: php71
+    PhpVersion: 'php7.4'
     QSS3BucketName: $[taskcat_autobucket]
     QSS3BucketRegion: $[taskcat_current_region]
     RemoteAccessCIDR: 10.0.0.0/16
@@ -44,8 +45,8 @@ project:
     SSLCertificateId: ''
     VPCCIDR: 10.0.0.0/16
     WebServerDesiredCapacity: '2'
-    WebServerInstanceType: t2.micro
-    WebServerMaxSize: '3'
+    WebServerInstanceType: t3.medium
+    WebServerMaxSize: '4'
     WebServerMinSize: '1'
 tests:
   drupal-v7-no-cdn:
@@ -82,5 +83,17 @@ tests:
     regions:
       - us-east-2
       - us-west-2
+    s3_bucket: ''
+    template: templates/drupal-master.template.yaml
+  drupal-v9-no-cdn:
+    parameters:
+      CloudFrontEnable: 'false'
+      DrupalVersion: '9'
+      KeyPair: $[alfred_getkeypair]
+      QSS3BucketName: $[taskcat_autobucket]
+      QSS3BucketRegion: $[taskcat_current_region]
+    regions:
+      - eu-west-1
+      - eu-west-2
     s3_bucket: ''
     template: templates/drupal-master.template.yaml

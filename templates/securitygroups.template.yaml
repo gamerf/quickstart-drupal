@@ -23,7 +23,7 @@ Parameters:
 Conditions:
   EnableElastiCacheCondition: !Equals
     - !Ref 'EnableElastiCache'
-    - 'true'
+    - true
 Resources:
   AuroraRDSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -32,8 +32,8 @@ Resources:
       VpcId: !Ref 'VPC'
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: '3306'
-          ToPort: '3306'
+          FromPort: 3306
+          ToPort: 3306
           SourceSecurityGroupId: !GetAtt 'WebServerSecurityGroup.GroupId'
   ELBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -42,12 +42,12 @@ Resources:
       VpcId: !Ref 'VPC'
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: '80'
-          ToPort: '80'
+          FromPort: 80
+          ToPort: 80
           CidrIp: '0.0.0.0/0'
         - IpProtocol: tcp
-          FromPort: '443'
-          ToPort: '443'
+          FromPort: 443
+          ToPort: 443
           CidrIp: '0.0.0.0/0'
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -56,16 +56,16 @@ Resources:
       VpcId: !Ref 'VPC'
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: '22'
-          ToPort: '22'
+          FromPort: 22
+          ToPort: 22
           SourceSecurityGroupId: !Ref 'BastionSecurityGroupID'
         - IpProtocol: tcp
-          FromPort: '443'
-          ToPort: '443'
+          FromPort: 443
+          ToPort: 443
           SourceSecurityGroupId: !GetAtt 'ELBSecurityGroup.GroupId'
         - IpProtocol: tcp
-          FromPort: '80'
-          ToPort: '80'
+          FromPort: 80
+          ToPort: 80
           SourceSecurityGroupId: !GetAtt 'ELBSecurityGroup.GroupId'
   EFSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -74,8 +74,8 @@ Resources:
       VpcId: !Ref 'VPC'
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: '2049'
-          ToPort: '2049'
+          FromPort: 2049
+          ToPort: 2049
           CidrIp: !Ref 'VPCCIDR'
   ElastiCacheSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -85,8 +85,8 @@ Resources:
       VpcId: !Ref 'VPC'
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: '11211'
-          ToPort: '11211'
+          FromPort: 11211
+          ToPort: 11211
           SourceSecurityGroupId: !GetAtt 'WebServerSecurityGroup.GroupId'
 Outputs:
   AuroraRDSSecurityGroup:
