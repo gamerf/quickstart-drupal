@@ -11,6 +11,7 @@ project:
   - eu-west-2
   - ap-southeast-2
   s3_bucket: ''
+  s3_regional_buckets: false
   shorten_stack_name: true
   parameters:
     AutoScalingNotificationEmail: 'foo@example.com'
@@ -38,8 +39,6 @@ project:
     ElastiCacheNodeType: cache.t3.micro
     ElastiCacheNumberOfNodes: '2'
     PhpVersion: 'php7.4'
-    QSS3BucketName: $[taskcat_autobucket]
-    QSS3BucketRegion: $[taskcat_current_region]
     RemoteAccessCIDR: 10.0.0.0/16
     Route53HostedZoneId: ''
     SSLCertificateId: ''
@@ -48,26 +47,24 @@ project:
     WebServerInstanceType: t3.medium
     WebServerMaxSize: '4'
     WebServerMinSize: '1'
+    QSS3BucketName: $[taskcat_autobucket]
+    QSS3BucketRegion: 'us-east-1'
 tests:
   drupal-v7-no-cdn:
     parameters:
       CloudFrontEnable: 'false'
       DrupalVersion: '7'
-      KeyPair: $[alfred_getkeypair]
-      QSS3BucketName: $[taskcat_autobucket]
-      QSS3BucketRegion: $[taskcat_current_region]
+      KeyPair: $[taskcat_getkeypair]
     regions:
     - ap-southeast-2
     - eu-central-1
     s3_bucket: ''
     template: templates/drupal-master.template.yaml
-  drupal-v7-cdn:
+  drupal-v9-cdn:
     parameters:
       CloudFrontEnable: 'true'
-      DrupalVersion: '7'
-      KeyPair: $[alfred_getkeypair]
-      QSS3BucketName: $[taskcat_autobucket]
-      QSS3BucketRegion: $[taskcat_current_region]
+      DrupalVersion: '9'
+      KeyPair: $[taskcat_getkeypair]
     regions:
       - eu-west-1
       - us-east-1
@@ -77,9 +74,7 @@ tests:
     parameters:
       CloudFrontEnable: 'false'
       DrupalVersion: '8'
-      KeyPair: $[alfred_getkeypair]
-      QSS3BucketName: $[taskcat_autobucket]
-      QSS3BucketRegion: $[taskcat_current_region]
+      KeyPair: $[taskcat_getkeypair]
     regions:
       - us-east-2
       - us-west-2
@@ -89,11 +84,8 @@ tests:
     parameters:
       CloudFrontEnable: 'false'
       DrupalVersion: '9'
-      KeyPair: $[alfred_getkeypair]
-      QSS3BucketName: $[taskcat_autobucket]
-      QSS3BucketRegion: $[taskcat_current_region]
+      KeyPair: $[taskcat_getkeypair]
     regions:
-      - eu-west-1
       - eu-west-2
     s3_bucket: ''
     template: templates/drupal-master.template.yaml

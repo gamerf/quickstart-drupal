@@ -7,8 +7,8 @@ Parameters:
   DomainName:
     Description: Drupal site domain name. e.g. mysite.com.
     Type: String
-    MinLength: '1'
-    MaxLength: '64'
+    MinLength: 1
+    MaxLength: 64
     AllowedPattern: (?!-)[a-zA-Z0-9-.]*(?<!-)
     ConstraintDescription: must be a valid fully-qualified domain name.
     Default: example.com
@@ -28,5 +28,5 @@ Resources:
           Type: A
           AliasTarget:
             DNSName: !Ref 'ElbDnsName'
-            EvaluateTargetHealth: 'True'
+            EvaluateTargetHealth: true
             HostedZoneId: !Ref 'ElbHostedZoneId'

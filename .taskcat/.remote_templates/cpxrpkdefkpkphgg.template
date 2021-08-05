@@ -447,19 +447,23 @@ Resources:
             Principal:
               Service: ec2.amazonaws.com
             Action: sts:AssumeRole
-      Policies:
-        - PolicyName: DescribeElastiCacheClusterPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Action:
-                  - elasticache:DescribeCacheClusters
-                Effect: Allow
-                Resource: '*'   
   WebServerInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
       Path: /
+      Roles:
+        - !Ref 'WebServerInstanceRole'
+  DescribeElastiCachePolicy:
+    Type: AWS::IAM::Policy
+    Condition: EnableElastiCacheCondition
+    Properties:
+      PolicyName: DescirbeElastiCacheClusterPolicy
+      PolicyDocument:
+        Statement:
+          - Action:
+              - elasticache:DescribeCacheClusters
+            Effect: Allow
+            Resource: '*'
       Roles:
         - !Ref 'WebServerInstanceRole'
   DrupalAMIEC2Instance:

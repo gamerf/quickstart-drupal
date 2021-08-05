@@ -25,11 +25,11 @@
     },
     {
         "ParameterKey": "DBInstanceClass",
-        "ParameterValue": "db.t2.small"
+        "ParameterValue": "db.t3.small"
     },
     {
         "ParameterKey": "DBMasterUserPassword",
-        "ParameterValue": "$[alfred_genpass_10]"
+        "ParameterValue": "$[taskcat_genpass_8A]"
     },
     {
         "ParameterKey": "DBMasterUsername",
@@ -45,7 +45,7 @@
     },
     {
         "ParameterKey": "DrupalDbPassword",
-        "ParameterValue": "$[alfred_genpass_10]"
+        "ParameterValue": "$[taskcat_genpass_8A]"
     },
     {
         "ParameterKey": "DrupalDbUsername",
@@ -57,7 +57,7 @@
     },
     {
         "ParameterKey": "DrupalSiteAdminPassword",
-        "ParameterValue": "$[alfred_genpass_10]"
+        "ParameterValue": "$[taskcat_genpass_8A]"
     },
     {
         "ParameterKey": "DrupalSiteAdminUsername",
@@ -73,15 +73,15 @@
     },
     {
         "ParameterKey": "DrupalVersion",
-        "ParameterValue": "7"
+        "ParameterValue": "9"
     },
     {
         "ParameterKey": "KeyPair",
-        "ParameterValue": "$[alfred_getkeypair]"
+        "ParameterValue": "$[taskcat_getkeypair]"
     },
     {
         "ParameterKey": "PhpVersion",
-        "ParameterValue": "php71"
+        "ParameterValue": "php7.4"
     },
    {
         "ParameterKey": "RemoteAccessCIDR",
@@ -101,11 +101,11 @@
     },
     {
         "ParameterKey": "WebServerInstanceType",
-        "ParameterValue": "t2.micro"
+        "ParameterValue": "t3.medium"
     },
     {
         "ParameterKey": "WebServerMaxSize",
-        "ParameterValue": "3"
+        "ParameterValue": "4"
     },
     {
         "ParameterKey": "WebServerMinSize",
@@ -137,7 +137,7 @@
     },
    {
         "ParameterKey": "ElastiCacheNodeType",
-        "ParameterValue": "cache.t2.micro"
+        "ParameterValue": "cache.t3.small"
     },
    {
         "ParameterKey": "ElastiCacheNumberOfNodes",
