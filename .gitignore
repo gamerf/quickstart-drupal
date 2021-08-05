@@ -33,3 +33,4 @@ Temporary Items
 # End of https://www.toptal.com/developers/gitignore/api/macos
 .taskcat_overrides.yml
 taskcat_outputs
+.taskcat
