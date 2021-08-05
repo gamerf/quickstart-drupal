@@ -1,8 +1,31 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Drupal CloudFront Web Distribution (qs-1nqqf5kol)
+Metadata:
+  LICENSE: Apache License Version 2.0
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: CDN - CloudFront Configuration
+        Parameters:
+          - OriginDnsName 
+          - OriginAccessProtocol
+          - CloudFrontAlias
+          - CustomSSLCertificateId
+          - CloudFrontPriceClass
+    ParameterLabels:
+      OriginDnsName:
+        default: The public application load balancer dns name
+      OriginAccessProtocol:
+        default: Protocol to be used by CloudFront to connect to ALB
+      CloudFrontAlias:
+        default: CloudFront Alias
+      CustomSSLCertificateId:
+        default: The ARN of the SSL certificate in Certificate Manager
+      CloudFrontPriceClass:
+        default: CloudFront PriceClass
 Parameters:
   OriginDnsName:
-    Description: The public application load balancer dns name.
+    Description: The public application load balancer dns name
     Type: String
   OriginAccessProtocol:
     Description: Protocol to be used by CloudFront to connect to ALB

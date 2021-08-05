@@ -28,11 +28,11 @@
         "ParameterValue": "db.t3.small"
     },
     {
-        "ParameterKey": "DBMasterUserPassword",
+        "ParameterKey": "DBMainUserPassword",
         "ParameterValue": "$[taskcat_genpass_8A]"
     },
     {
-        "ParameterKey": "DBMasterUsername",
+        "ParameterKey": "DBMainUsername",
         "ParameterValue": "dbadmin"
     },
     {

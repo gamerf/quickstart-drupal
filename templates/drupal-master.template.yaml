@@ -1,6 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Deploy Drupal on AWS (New VPC). (qs-1nqqf5ko1)
+Description: Deploy Drupal on AWS (New VPC) (qs-1nqqf5ko1)
 Metadata:
+  LICENSE: Apache License Version 2.0
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
@@ -31,8 +32,8 @@ Metadata:
           - DBAutoMinorVersionUpgrade
           - DBBackupRetentionPeriod
           - DBInstanceClass
-          - DBMasterUsername
-          - DBMasterUserPassword
+          - DBMainUsername
+          - DBMainUserPassword
           - DBMultiAZ
       - Label:
           default: Drupal Configuration
@@ -89,9 +90,9 @@ Metadata:
         default: Backup Retention Period
       DBInstanceClass:
         default: Database Instance Size
-      DBMasterUserPassword:
+      DBMainUserPassword:
         default: Database Admin Password
-      DBMasterUsername:
+      DBMainUsername:
         default: Database Admin Username
       DBMultiAZ:
         default: Multi-AZ Database
@@ -238,7 +239,7 @@ Parameters:
     Default: db.t3.small
     Description: Select Instance size for the Database
     Type: String
-  DBMasterUserPassword:
+  DBMainUserPassword:
     AllowedPattern: (?=\S)[^@/"\r\n\t\f\s]*
     ConstraintDescription: Min 8 alphanumeric. Cannot contain white space, @, /, "
     Description: The database admin account password
@@ -246,7 +247,7 @@ Parameters:
     MinLength: '8'
     NoEcho: 'True'
     Type: String
-  DBMasterUsername:
+  DBMainUsername:
     AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
     ConstraintDescription: must begin with a letter and contain only alphanumeric
       characters.
@@ -650,8 +651,8 @@ Resources:
         PublicSubnet1ID: !GetAtt 'VPCStack.Outputs.PublicSubnet1ID'
         PublicSubnet2ID: !GetAtt 'VPCStack.Outputs.PublicSubnet2ID'
         DBInstanceClass: !Ref 'DBInstanceClass'
-        DBMasterUsername: !Ref 'DBMasterUsername'
-        DBMasterUserPassword: !Ref 'DBMasterUserPassword'
+        DBMainUsername: !Ref 'DBMainUsername'
+        DBMainUserPassword: !Ref 'DBMainUserPassword'
         DBMultiAZ: !Ref 'DBMultiAZ'
         DBAutoMinorVersionUpgrade: !Ref 'DBAutoMinorVersionUpgrade'
         DBBackupRetentionPeriod: !Ref 'DBBackupRetentionPeriod'

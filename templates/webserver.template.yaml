@@ -1,6 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Drupal Webserver Template. (qs-1nqqf5kol)
+Description: Drupal Webserver Template (qs-1nqqf5kol)
 Metadata:
+  LICENSE: Apache License Version 2.0
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
@@ -17,8 +18,8 @@ Metadata:
           default: Database Configuration
         Parameters:
           - DBEndpointAddress
-          - DBMasterUsername
-          - DBMasterUserPassword
+          - DBMainUsername
+          - DBMainUserPassword
           - DrupalDbName
           - DrupalDbUsername
           - DrupalDbPassword
@@ -32,6 +33,7 @@ Metadata:
           - DrupalSiteAdminUsername
           - DrupalSiteAdminPassword
           - DrupalSiteDomain
+          - Route53HostedZoneId
       - Label:
           default: Drupal Webserver Configuration
         Parameters:
@@ -47,14 +49,97 @@ Metadata:
           default: CDN - CloudFront Configuration
         Parameters:
           - CloudFrontEnable
+          - CFSSLCertificateId
           - CloudFrontPriceClass
+          - CloudFrontAlias
+      - Label:
+          default: ElastiCache Configuration
+        Parameters:
+          - EnableElastiCache
+          - ElastiCacheClusterId
       - Label:
           default: AWS Quick Start Configuration
         Parameters:
           - QSS3BucketName
           - QSS3BucketRegion
           - QSS3KeyPrefix
-    ParameterLabels: {}
+    ParameterLabels:
+      WebServerSubnets:
+        default: Private Subnets
+      WebELBSecurityGroup:
+        default: ELB Security Group
+      WebServerSecurityGroup:
+        default: Web Server Security Group
+      PublicSubnet1ID:
+        default: Public Subnet 1 ID
+      PublicSubnet2ID:
+        default: Public Subnet 2 ID
+      VPCID:
+        default: VPC ID
+      EFSSecurityGroup:
+        default: EFS Security Group
+      DBEndpointAddress:
+        default: Aurora DB Endpoint
+      DBMainUsername:
+        default: Database Admin Username
+      DBMainUserPassword:
+        default: Database Admin Password
+      DrupalDbName:
+        default: Drupal Database Name
+      DrupalDbUsername:
+        default: Drupal Database Username
+      DrupalDbPassword:
+        default: Drupal Database Password
+      PhpVersion:
+        default: PHP Version
+      DrupalVersion:
+        default: Drupal Version
+      DrupalSiteName:
+        default: Drupal Site Name
+      DrupalSiteAdminEmail:
+        default: Drupal Site Admin Email
+      DrupalSiteAdminUsername:
+        default: Drupal Site Admin Username
+      DrupalSiteAdminPassword:
+        default: Drupal Site Admin Password
+      DrupalSiteDomain:
+        default: Drupal Site Domain
+      Route53HostedZoneId:
+        default: Route53 Hosted Zone ID
+      WebServerInstanceType:
+        default: Webserver Instance Size
+      AutoScalingNotificationEmail:
+        default: Autoscaling Notification Email
+      WebServerMaxSize:
+        default: Max Number of Instances
+      WebServerMinSize:
+        default: Min Number of Instances
+      WebServerDesiredCapacity:
+        default: Desired number of Instances
+      KeyPair:
+        default: Bastion Host KeyPair Name
+      SSLCertificateId:
+        default: SSL Certificate ARN for ALB HTTPS Listener
+      LatestAmiId:
+        default: Latest Amazon Linux 2 AMI
+      CloudFrontEnable:
+        default: Enable CloudFront
+      CFSSLCertificateId:
+        default: SSL Certificate ARN for CloudFront Distribution
+      CloudFrontPriceClass:
+        default: CloudFront PriceClass
+      CloudFrontAlias:
+        default: Alias for the CloudFront distribution
+      EnableElastiCache:
+        default: Enable ElastiCache
+      ElastiCacheClusterId:
+        default: ElastiCache Cluster Id
+      QSS3BucketName:
+        default: Quick Start S3 Bucket Name
+      QSS3BucketRegion:
+        default: Quick Start S3 bucket region
+      QSS3KeyPrefix:
+        default: Quick Start S3 Key Prefix
 Parameters:
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
@@ -148,10 +233,11 @@ Parameters:
   LatestAmiId:
     Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+    Description: Latest Amazon Linux 2 AMI
   DBEndpointAddress:
     Description: Aurora DB Endpoint
     Type: String
-  DBMasterUsername:
+  DBMainUsername:
     AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
     ConstraintDescription: must begin with a letter and contain only alphanumeric
       characters.
@@ -160,7 +246,7 @@ Parameters:
     MaxLength: '16'
     MinLength: '1'
     Type: String
-  DBMasterUserPassword:
+  DBMainUserPassword:
     AllowedPattern: (?=\S)[^@/"\r\n\t\f\s]*
     ConstraintDescription: Min 8 chars.
     Description: The database admin account password
@@ -318,7 +404,7 @@ Parameters:
     Default: 'true'
     Type: String
   ElastiCacheClusterId:
-    Description: ElastiCache Cluster Id.
+    Description: ElastiCache Cluster Id
     Type: String
     Default: ''
 Rules:
@@ -455,7 +541,7 @@ Resources:
               - Action:
                   - elasticache:DescribeCacheClusters
                 Effect: Allow
-                Resource: '*'   
+                Resource: !Sub 'arn:${AWS::Partition}:elasticache:${AWS::Region}:${AWS::AccountId}:cluster:*'
   WebServerInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
@@ -605,9 +691,9 @@ Resources:
               command: !Join
                 - ''
                 - - 'mysql -u '
-                  - !Ref 'DBMasterUsername'
+                  - !Ref 'DBMainUsername'
                   - ' --password='''
-                  - !Ref 'DBMasterUserPassword'
+                  - !Ref 'DBMainUserPassword'
                   - ''''
                   - ' -h '
                   - !Ref 'DBEndpointAddress'

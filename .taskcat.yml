@@ -24,8 +24,8 @@ project:
     DBBackupRetentionPeriod: '7'
     DBInstanceClass: db.t3.small
     DBMultiAZ: 'true'
-    DBMasterUsername: dbadmin
-    DBMasterUserPassword: $[taskcat_genpass_10]
+    DBMainUsername: dbadmin
+    DBMainUserPassword: $[taskcat_genpass_10]
     DrupalDbPassword: $[taskcat_genpass_10]
     DrupalSiteAdminPassword: $[taskcat_genpass_10]
     DrupalSiteAdminEmail: foo@example.com

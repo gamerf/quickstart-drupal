@@ -1,9 +1,35 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Drupal ElastiCache - Memcached Cluster
+Description: Drupal ElastiCache - Memcached Cluster (qs-1s5hh8p6c)
+Metadata:
+  LICENSE: Apache License Version 2.0
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - Subnets
+      - Label:
+          default: ElastiCache Configuration
+        Parameters:
+          - ElastiCacheSecurityGroup
+          - AutoMinorVersionUpgrade
+          - NodeType
+          - NumberOfNode
+    ParameterLabels:
+      Subnets:
+        default: Two existing Subnets
+      ElastiCacheSecurityGroup:
+        default: VPC security group IDs
+      AutoMinorVersionUpgrade:
+        default: Enable ElastiCache Auto Minor Version Upgrade
+      NodeType:
+        default: ElastiCache Node Type
+      NumberOfNode:
+        default: Number of ElastiCache Nodes
 Parameters:
   Subnets:
     ConstraintDescription: Must be a list of existing subnet Ids
-    Description: Atleast two existing Subnets in separate Availability Zones in your
+    Description: At least two existing Subnets in separate Availability Zones in your
       Virtual Private Cloud (VPC)
     Type: List<AWS::EC2::Subnet::Id>
   ElastiCacheSecurityGroup:

@@ -1,8 +1,25 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Create an AMI for Launch Configuration. (qs-1nqqf5ko6)
+Description: Create an AMI for Launch Configuration (qs-1nqqf5ko6)
+Metadata:
+  LICENSE: Apache License Version 2.0
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: AMI Creation Parameters
+        Parameters:
+          - EC2InstanceId 
+          - AMIBaseName
+          - ARNPartition
+    ParameterLabels:
+      EC2InstanceId:
+        default: TEC2 Instance-Id from which the AMI will be created
+      AMIBaseName:
+        default: AMI base-name
+      ARNPartition:
+        default: ARN Partition Key
 Parameters:
   EC2InstanceId:
-    Description: EC2 Instance-Id from which the AMI will be created.
+    Description: EC2 Instance-Id from which the AMI will be created
     Type: String
   AMIBaseName:
     Description: AMI base-name. AMI Base Name will be appended with random numbers
@@ -61,10 +78,16 @@ Resources:
                     - :*
               - Effect: Allow
                 Action:
-                  - ec2:Describe*
                   - ec2:StopInstances
                   - ec2:CreateImage
                   - ec2:DeregisterImage
+                Resource:  
+                  - !Sub 'arn:${ARNPartition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*'
+                  - !Sub 'arn:${ARNPartition}:ec2:${AWS::Region}::image/*'
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeImages
+                  - ec2:DescribeInstances
                 Resource: '*'
   CreateAMIFunction:
     Type: AWS::Lambda::Function

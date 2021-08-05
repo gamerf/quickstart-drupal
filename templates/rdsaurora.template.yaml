@@ -1,5 +1,43 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Drupal RDS Aurora-MySQL Template. (qs-1nqqf5kob)
+Metadata:
+  LICENSE: Apache License Version 2.0
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - Subnets
+      - Label:
+          default: Aurora Database Configuration
+        Parameters:
+          - AuroraRDSSecurityGroup
+          - DBAutoMinorVersionUpgrade
+          - DBBackupRetentionPeriod
+          - DBInstanceClass
+          - DBName
+          - DBMainUsername
+          - DBMainUserPassword
+          - DBMultiAZ
+    ParameterLabels:
+      Subnets:
+        default: Two existing Subnets
+      AuroraRDSSecurityGroup:
+        default: VPC security group IDs
+      DBAutoMinorVersionUpgrade:
+        default: Enable Auto Minor Version Upgrade
+      DBBackupRetentionPeriod:
+        default: Backup Retention Period
+      DBInstanceClass:
+        default: Database Instance Size
+      DBName: 
+        default: Name of Aurora DB for Drupal Stack
+      DBMainUserPassword:
+        default: Database Admin Password
+      DBMainUsername:
+        default: Database Admin Username
+      DBMultiAZ:
+        default: Multi-AZ Database
 Parameters:
   Subnets:
     ConstraintDescription: must be list of existing subnet Ids
@@ -43,7 +81,7 @@ Parameters:
     MaxLength: '64'
     MinLength: '5'
     Type: String
-  DBMasterUsername:
+  DBMainUsername:
     AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
     ConstraintDescription: must begin with a letter and contain only alphanumeric
       characters.
@@ -52,7 +90,7 @@ Parameters:
     MaxLength: '16'
     MinLength: '1'
     Type: String
-  DBMasterUserPassword:
+  DBMainUserPassword:
     AllowedPattern: (?=\S)[^@/"\r\n\t\f\s]*
     ConstraintDescription: Min 8 alphanumeric. Cannot contain white space, @, /, "
     Description: The database admin account password
@@ -79,14 +117,22 @@ Resources:
       DBSubnetGroupDescription: Subnets available for the RDS Aurora DB Instance
       SubnetIds: !Ref 'Subnets'
   AuroraDBCluster:
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - ERDSStorageEncryptionEnabled
+          ignore_reasons:
+            ERDSStorageEncryptionEnabled: lint check should be for StorageEncrypted and not StorageEncryption
     Type: AWS::RDS::DBCluster
     Properties:
       BackupRetentionPeriod: !Ref 'DBBackupRetentionPeriod'
+      StorageEncrypted: true
       DBSubnetGroupName: !Ref 'AuroraDBSubnetGroup'
       Engine: aurora-mysql
       EngineVersion: '5.7'
-      MasterUsername: !Ref 'DBMasterUsername'
-      MasterUserPassword: !Ref 'DBMasterUserPassword'
+      MasterUsername: !Ref 'DBMainUsername'
+      MasterUserPassword: !Ref 'DBMainUserPassword'
       VpcSecurityGroupIds:
         - !Ref 'AuroraRDSSecurityGroup'
       Tags:
@@ -97,6 +143,7 @@ Resources:
     Properties:
       Engine: aurora-mysql
       DBClusterIdentifier: !Ref 'AuroraDBCluster'
+      PubliclyAccessible: false
       DBInstanceClass: !Ref 'DBInstanceClass'
       DBSubnetGroupName: !Ref 'AuroraDBSubnetGroup'
       AutoMinorVersionUpgrade: !Ref 'DBAutoMinorVersionUpgrade'
@@ -109,6 +156,7 @@ Resources:
     Properties:
       Engine: aurora-mysql
       DBClusterIdentifier: !Ref 'AuroraDBCluster'
+      PubliclyAccessible: false
       DBInstanceClass: !Ref 'DBInstanceClass'
       DBSubnetGroupName: !Ref 'AuroraDBSubnetGroup'
       AutoMinorVersionUpgrade: !Ref 'DBAutoMinorVersionUpgrade'

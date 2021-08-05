@@ -1,5 +1,25 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Create Route53 RecordSet for Drupal site domain.
+Description: Create Route53 RecordSet for Drupal site domain (qs-1s5hh8p8o)
+Metadata:
+  LICENSE: Apache License Version 2.0
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Drupal Site Domain Configuration
+        Parameters:
+          - HostedZoneId
+          - DomainName
+          - ElbDnsName
+          - ElbHostedZoneId
+    ParameterLabels:
+      HostedZoneId:
+        default: Route53 Hosted Zone ID
+      DomainName:
+        default: Drupal site domain name
+      ElbDnsName:
+        default: ALB/ELB URL
+      ElbHostedZoneId:
+        default: ALB/ELB Hosted Zone ID
 Parameters:
   HostedZoneId:
     Description: Route53 Hosted Zone ID
@@ -19,7 +39,7 @@ Parameters:
     Description: ALB/ELB Hosted Zone ID e.g. Z2FDTNDATAQYW2
     Type: String
 Resources:
-  drupalDomainDns:
+  DrupalDomainDns:
     Type: AWS::Route53::RecordSetGroup
     Properties:
       HostedZoneId: !Ref 'HostedZoneId'

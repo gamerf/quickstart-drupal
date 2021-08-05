@@ -1,5 +1,25 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Drupal Security Groups template. (qs-1nqqf5kog)
+Description: Drupal Security Groups template (qs-1nqqf5kog)
+Metadata:
+  LICENSE: Apache License Version 2.0
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - VPC
+          - VPCCIDR
+          - BastionSecurityGroupID
+          - EnableElastiCache
+    ParameterLabels:
+      VPC:
+        default: VPC-ID
+      VPCCIDR:
+        default: CIDR block for VPC
+      BastionSecurityGroupID:
+        default: ID of the Bastion Security Group
+      EnableElastiCache:
+        default: Enable ElastiCache
 Parameters:
   VPC:
     Description: VPC-ID of your existing Virtual Private Cloud (VPC) where you want
@@ -16,9 +36,9 @@ Parameters:
   EnableElastiCache:
     Description: Enable ElastiCache
     AllowedValues:
-      - 'true'
-      - 'false'
-    Default: 'true'
+      - true
+      - false
+    Default: true
     Type: String
 Conditions:
   EnableElastiCacheCondition: !Equals
